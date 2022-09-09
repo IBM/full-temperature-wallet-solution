@@ -32,7 +32,7 @@
     - [2.7.3. Download ibm public key](#273-download-ibm-public-key)
     - [2.7.4. Encrypting workloads](#274-encrypting-workloads)
   - [2.8. `role2`Build an ENV template](#28-role2build-an-env-template)
-    - [2.8.1. 创建env 模版](#281-创建env-模版)
+    - [2.8.1. build env template](#281-build-env-template)
     - [2.8.2. Download ibm public key](#282-download-ibm-public-key)
     - [2.8.3. Encrypted env template](#283-encrypted-env-template)
   - [2.9. Operation and maintenance personnel deploy applications](#29-operation-and-maintenance-personnel-deploy-applications)
@@ -74,36 +74,36 @@
 export SIGN_HOST=<ip-address>
 export SIGNING_PORT=8080
 
-# 测试连通性
+# Test the connectivity
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/get_mechanismsc
 
-# 产生椭圆曲线Key pair
+# Generate an elliptic curve Key pair
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/generate_key_pair -X POST -s | jq
 
-# 获取公钥
+# Get the public key
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/public/${KEY_UUID} -s | jq
 
-# 获取ethereum 格式的公钥
+# Get a public key in Ethereum format
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/get_ethereum_key/${KEY_UUID}  -s | jq
 
-# 使用secp256k1类型的私钥在HPCS 上签名，签名后使用ethereum类型的公钥验证签名，
-# 验证签名方法直接调用以太坊的库执行  crypto.VerifySignature
-# 以太坊的签名摘要必须是32位
+# After signing on HPCS with p256k1 type signature, use Ethereum type verification signature,
+#vVerify the signature method directly call the Ethereum library to execute crypto.VerifySignature
+#vEthereum's signature digest must be 32 bits
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/verify_ethereum_pub_key/${KEY_UUID} -X POST  -s -d '{"data":"fad9c8855b740a0b7ed4c221dbad0f33","ethereum_pub_key":"0x0474618a3e3a8a7207c008d9a993b611b2f38f281c53cb8e1e67e5f2c9f0fd8fe572037924791385a203afe1c45149f3918b6df86918a020a822df3d1fc8508b3a"}' | jq
 
-·# 获取被包裹的私钥
+# Get the wrapped private key
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/private/${KEY_UUID} -s | jq
 
-# 使用私钥签名数据
+# Sign data with private key
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/sign/${KEY_UUID}  -s -X POST -d '{"data":"the text need to encrypted to verify kay."}' | jq
 
-# 使用公钥验证签名
+# Verify signature with public key
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/verify/${KEY_UUID}  -s -X POST -d '{"data":"the text need to encrypted to verify kay.","signature":"Tw/Dk0NUNbklut31DQctitAFeFwkCtdRP7hAcMU84dYRkdXFlCB9mEFzaGpZ+dK/786k7iVQ8a8WRCNF0U7r/Q"}' |jq
 
-# 使用master key包裹导入的AES，并持久化到HPDBaaS
+# Wrap the imported AES with the master key and persist it to HPDBaaS
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/aes/import -X POST -s -d '{"key_content":"E5E9FA1BA31ECD1AE84F75CAAA474F3A"}' |jq
 
-#使用导入到AESkey 加密数据与明文AES加密数据结果对比，如果一样就证明导入到key是正确的，并且被master key 包裹了
+#Use the encrypted data imported into AESkey to compare the results of plaintext AES encrypted data. If they are the same, it proves that the imported key is correct and is wrapped by the master key.
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/aes/verify/${KEY_UUID}  -X POST -d '{"key_content":"E5E9FA1BA31ECD1AE84F75CAAA474F3A","data":"E5E9FA1BA31ECD1AE84F75CAAA474F3A"}'
 
 
@@ -217,47 +217,47 @@ git clone https://github.com/threen134/signing_server.git
 
 ### 2.5.2. Building an Image
 ```sh
-# 创建镜像
+# build image 
 cd ./signing_server
 docker build -t signing_server:v3  .
-# 如果是非s39x架构， 使用下面对命令
+#If it is a non-s39x architecture, use the following command
 docker buildx build --platform=linux/s390x  -t signing_server:v1 .  
 ```
 
 ### 2.5.3. Tag image
 ```sh
-# tag 镜像
-# au.icr.io 为上文中 IBM CR的endpoint 
-# spark-demo 为上文创建的namespce
-# s390x-signing-server:v3 为image：tag*  
+# tag image
+# au.icr.io is the endpoint of IBM CR above
+# spark-demo is the namespce created above
+# s390x-signing-server:v3 is image:tag*
 docker tag signing_server:v1 au.icr.io/poc-demo/signing-server:v1
 ```
 
 ## 2.6. After the version manager inspects the code, execute the signing operation.
 ###  2.6.1. Create a trust key
 ```sh
-# 创建的密钥需要输入密码，后面签名镜像的时候需要使用这个密钥读取私钥进行签名
+# The created key needs to enter the password. When signing the image later, you need to use this key to read the private key for signing
 docker trust key generate poc-test-sign-key
 ```
 ###  2.6.2. Enable DCT[(Docker Content Trust)](https://docs.docker.com/engine/security/trust/#signing-images-with-docker-content-trust)
 ```sh
-# DCT 环境变量的语法格式为https://notary.<region>.icr.io， 记得调整为自己对应的region
-# 亚洲地区有au，北美区域有us支持 notary
+# The syntax format of the DCT environment variable is https://notary.<region>.icr.io, remember to adjust it to your corresponding region
+# au in Asia and us in North America notary
 export DOCKER_CONTENT_TRUST=1
 export DOCKER_CONTENT_TRUST_SERVER=https://notary.au.icr.io
 ```
 ### 2.6.3. Upload image and sign
 ```sh
-# 登陆ibm container registry 
+# Log in to the ibm container registry
 ibmcloud login --apikey <your api key> -g Default -r jp-tok
-# 设置区域
+# set region
 ibmcloud cr region-set ap-south
 ibmcloud cr login 
-#为IBM CR 创建namespce，名字必须全局唯一
+# Create namespce for IBM CR, the name must be globally unique
 ibmcloud cr namespace-add poc-demo
-# 上载镜像， 上传的时候需要输入私钥的密钥，如果是第一次使用notary，还需要设置notary的密码
+# Upload the image, you need to enter the key of the private key when uploading. If it is the first time to use notary, you also need to set the password of notary
 docker push au.icr.io/poc-demo/signing-server:v1
-# 查看签名信息
+# check signature information
 docker trust inspect au.icr.io/poc-demo/signing-server:v1 
 ```
 
@@ -369,7 +369,7 @@ source ~/.zshrc
 
 ## 2.8. `role2`Build an ENV template
 
-### 2.8.1. 创建env 模版
+### 2.8.1. build env template 
 这里主要是[设置logDNA的字段](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se&interface=ui#hpcr_setup_logging),可选的数据卷与环境变量
 
 ```yaml
@@ -501,22 +501,24 @@ curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/get_ethereum_key/${KEY
 ```
 
 ### 3.1.2. Apply for test coins
-拿到上一步产生的地址，在[水管](https://fauceth.komputing.org/)上申请`rinkeby`测试币
+Get the address generated in the previous step and apply for test coins on the [fauceth](https://fauceth.komputing.org/) rinkeby
+
 ### 3.1.3. Get a target address
-获取一个目标交易地址, 或者通过上面的步骤生产一个新的钱包并获取 `to address`
+Get a target transaction address, or generate a new wallet through the above steps and get `to address`
+
 ### 3.1.4. Use ethereum-client to broadcast transactions to the test chain rinkeby
-- 加载环境变量
+- Loading environment variables
 ```sh
 cd ./ethereum-client
 cp ./env.sh.template ./env.sh
-# 编辑env.sh
+# full parameter to env.sh and load env
 source ./ethereum-client/env.sh
 ```
 
 ### 3.1.5. Signing transactions on the test chain
 ```sh 
   go run ./... 
-  # 得到输出
+  # output
   https://rinkeby.etherscan.io/tx/0x71231d85bfa7497f09a54023535874779a3e73a2c0084fa8a1612f9cb709a7a1 
 ```
 
