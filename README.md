@@ -1,6 +1,6 @@
 
 - [1. Signature Server](#1-signature-server)
-  - [1.1. 环境介绍](#11-环境介绍)
+  - [1.1. Environment introduction](#11-environment-introduction)
   - [1.2. The client communicates with the signature server through the following endpoints](#12-the-client-communicates-with-the-signature-server-through-the-following-endpoints)
   - [1.3. Sequence diagram and description of GREP11 API usage example](#13-sequence-diagram-and-description-of-grep11-api-usage-example)
     - [1.3.1. Step-by-step instructions](#131-step-by-step-instructions)
@@ -55,7 +55,7 @@
  
  The signature server shows a scenario of [Hyper Protect Service](https://ibm-hyper-protect.github.io/) 
 
-## 1.1. 环境介绍
+## 1.1. Environment introduction
 ![](./img/5.jpg)
 - Deploy the signature server to the trusted execution environment HPVS in a manner similar to a multi-party contract
 - The client communicates with the signature server through RestAPI (the production environment also requires TLS certificate verification)
@@ -134,7 +134,7 @@ openssl pkeyutl -verify -in test.data -sigfile  signature.sig  -pubin  -inkey ec
 
 ```
 ## 1.3. Sequence diagram and description of GREP11 API usage example
-![](./img/GREP11%20API%20%20使用场景说明-详细版本.jpg)
+![](./img/grep11_import_key.jpg)
 
 ### 1.3.1. Step-by-step instructions
 
@@ -169,7 +169,7 @@ Based on the [confidential computing architecture](https://www.ibm.com/cloud/lea
 - **Flexible Deployment**：Choose from a variety of profile sizes and scale as needed to secure containerized applications and pay by the hour.
 
 ## 2.2. Main step description and role separation design
-![byoi](./img/1.jpg)
+![byoi](./img/11.jpg)
 
 ### 2.2.1. Overview of the main steps
 
