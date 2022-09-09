@@ -1,74 +1,73 @@
 
-- [1. 签名服务器](#1-签名服务器)
+- [1. Signature Server](#1-signature-server)
   - [1.1. 环境介绍](#11-环境介绍)
-  - [1.2. Client 通过下列endpoint 与签名服务器通信](#12-client-通过下列endpoint-与签名服务器通信)
-  - [1.3. GREP11 API 使用举例时序图与说明](#13-grep11-api-使用举例时序图与说明)
-    - [1.3.1. 步骤说明](#131-步骤说明)
-  - [1.4. 导入密钥流程](#14-导入密钥流程)
-    - [1.4.1. GREP11 AP1 导入私钥时序图与说明](#141-grep11-ap1-导入私钥时序图与说明)
-    - [1.4.2. 步骤说明](#142-步骤说明)
-- [2. 部署签名服务器](#2-部署签名服务器)
-  - [2.1. HPVS 介绍](#21-hpvs-介绍)
-    - [2.1.1. HPVS 的主要特性](#211-hpvs-的主要特性)
-  - [2.2. 主要步骤描述与角色分离设计](#22-主要步骤描述与角色分离设计)
-    - [2.2.1. 主要步骤概述](#221-主要步骤概述)
-  - [2.3. 角色定义](#23-角色定义)
-  - [2.4. 准备工作](#24-准备工作)
-    - [2.4.1. 安装IBMCLI](#241-安装ibmcli)
-    - [2.4.2. 安装IBM Container Registry](#242-安装ibm-container-registry)
-    - [2.4.3. 安装Docker](#243-安装docker)
-  - [2.5. 构建镜像](#25-构建镜像)
-    - [2.5.1. 克隆代码仓库](#251-克隆代码仓库)
-    - [2.5.2. 构建镜像](#252-构建镜像)
-    - [2.5.3. tag镜像](#253-tag镜像)
-  - [2.6. 版本经理检视代码后，执行签名操作。](#26-版本经理检视代码后执行签名操作)
-    - [2.6.1. 创建trust key](#261-创建trust-key)
-    - [2.6.2. 开启DCT(Docker Content Trust)](#262-开启dctdocker-content-trust)
-    - [2.6.3. 上传镜像并签名](#263-上传镜像并签名)
-    - [2.6.4. 获取签名的公钥](#264-获取签名的公钥)
-  - [2.7. `角色1`构建WORKLOAD模版](#27-角色1构建workload模版)
-    - [2.7.1. 把compose模版文件转码为base64](#271-把compose模版文件转码为base64)
-    - [2.7.2. 构建workload模版](#272-构建workload模版)
-    - [2.7.3. 下载ibm的公钥](#273-下载ibm的公钥)
-    - [2.7.4. 加密workload](#274-加密workload)
-  - [2.8. `角色2`构建ENV模版](#28-角色2构建env模版)
+  - [1.2. The client communicates with the signature server through the following endpoints](#12-the-client-communicates-with-the-signature-server-through-the-following-endpoints)
+  - [1.3. Sequence diagram and description of GREP11 API usage example](#13-sequence-diagram-and-description-of-grep11-api-usage-example)
+    - [1.3.1. Step-by-step instructions](#131-step-by-step-instructions)
+  - [1.4. Import key process](#14-import-key-process)
+    - [1.4.1. GREP11 AP1 import private key sequence diagram and description](#141-grep11-ap1-import-private-key-sequence-diagram-and-description)
+    - [1.4.2. Step-by-step instructions](#142-step-by-step-instructions)
+- [2. Deploy the signature server](#2-deploy-the-signature-server)
+  - [2.1. Introduction to HPVS](#21-introduction-to-hpvs)
+    - [2.1.1. Main Features of HPVS](#211-main-features-of-hpvs)
+  - [2.2. Main step description and role separation design](#22-main-step-description-and-role-separation-design)
+    - [2.2.1. Overview of the main steps](#221-overview-of-the-main-steps)
+  - [2.3. Role Definition](#23-role-definition)
+  - [2.4. Preparations](#24-preparations)
+    - [2.4.1. Installing IBM CLI](#241-installing-ibm-cli)
+    - [2.4.2. Install IBM Container Registry](#242-install-ibm-container-registry)
+    - [2.4.3. Install Docker](#243-install-docker)
+  - [2.5. Building the image](#25-building-the-image)
+    - [2.5.1. Clone the repository](#251-clone-the-repository)
+    - [2.5.2. Building an Image](#252-building-an-image)
+    - [2.5.3. Tag image](#253-tag-image)
+  - [2.6. After the version manager inspects the code, execute the signing operation.](#26-after-the-version-manager-inspects-the-code-execute-the-signing-operation)
+    - [2.6.1. Create a trust key](#261-create-a-trust-key)
+    - [2.6.2. Enable DCT(Docker Content Trust)](#262-enable-dctdocker-content-trust)
+    - [2.6.3. Upload image and sign](#263-upload-image-and-sign)
+    - [2.6.4. Obtaining the signed public key](#264-obtaining-the-signed-public-key)
+  - [2.7. `role 1` Build the WORKLOAD template](#27-role-1-build-the-workload-template)
+    - [2.7.1. Convert the compose template file to base64](#271-convert-the-compose-template-file-to-base64)
+    - [2.7.2. Building a Workload Template](#272-building-a-workload-template)
+    - [2.7.3. Download ibm public key](#273-download-ibm-public-key)
+    - [2.7.4. Encrypting workloads](#274-encrypting-workloads)
+  - [2.8. `role2`Build an ENV template](#28-role2build-an-env-template)
     - [2.8.1. 创建env 模版](#281-创建env-模版)
-    - [2.8.2. 下载ibm的公钥](#282-下载ibm的公钥)
-    - [2.8.3. 加密env 模版](#283-加密env-模版)
-  - [2.9. 运维人员部署应用](#29-运维人员部署应用)
-    - [2.9.1. 构建`user-data.yaml`文件](#291-构建user-datayaml文件)
-    - [2.9.2. 通过IBM console 创建实例](#292-通过ibm-console-创建实例)
-    - [2.9.3. 通过logDNA 查看部署情况](#293-通过logdna-查看部署情况)
-    - [2.9.4. 验证应用部署](#294-验证应用部署)
-  - [2.10. 通过明文模版部署应用](#210-通过明文模版部署应用)
-- [3. 使用HPCS签名交易，并上测试链广播交易](#3-使用hpcs签名交易并上测试链广播交易)
-  - [3.1. 主要步骤说明](#31-主要步骤说明)
-    - [3.1.1. 通过HPCS 产生 钱包](#311-通过hpcs-产生-钱包)
-    - [3.1.2. 申请测试币](#312-申请测试币)
-    - [3.1.3. 获取一个目标地址](#313-获取一个目标地址)
-    - [3.1.4. 使用 ethereum-client 广播交易到 测试链 rinkeby](#314-使用-ethereum-client-广播交易到-测试链-rinkeby)
-    - [3.1.5. 在测试链上签名交易](#315-在测试链上签名交易)
-    - [3.1.6. 查看交易结果](#316-查看交易结果)
-- [4. 参考文档](#4-参考文档)
+    - [2.8.2. Download ibm public key](#282-download-ibm-public-key)
+    - [2.8.3. Encrypted env template](#283-encrypted-env-template)
+  - [2.9. Operation and maintenance personnel deploy applications](#29-operation-and-maintenance-personnel-deploy-applications)
+    - [2.9.1. buile `user-data.yaml`](#291-buile-user-datayaml)
+    - [2.9.2. Creating an instance through the IBM console](#292-creating-an-instance-through-the-ibm-console)
+    - [2.9.3. Check the deployment status through logDNA](#293-check-the-deployment-status-through-logdna)
+    - [2.9.4. Verifying Application Deployment](#294-verifying-application-deployment)
+  - [2.10. Deploying an application via a plaintext template](#210-deploying-an-application-via-a-plaintext-template)
+- [3. Sign the transaction using HPCS and broadcast the transaction on the test chain](#3-sign-the-transaction-using-hpcs-and-broadcast-the-transaction-on-the-test-chain)
+  - [3.1. Description of main steps](#31-description-of-main-steps)
+    - [3.1.1. Generate wallet through HPCS](#311-generate-wallet-through-hpcs)
+    - [3.1.2. Apply for test coins](#312-apply-for-test-coins)
+    - [3.1.3. Get a target address](#313-get-a-target-address)
+    - [3.1.4. Use ethereum-client to broadcast transactions to the test chain rinkeby](#314-use-ethereum-client-to-broadcast-transactions-to-the-test-chain-rinkeby)
+    - [3.1.5. Signing transactions on the test chain](#315-signing-transactions-on-the-test-chain)
+    - [3.1.6. View transaction results](#316-view-transaction-results)
+- [4. Reference Documentation](#4-reference-documentation)
 
-# 1. 签名服务器
+# 1. Signature Server
  
- 签名服务器展示[Hyper Protect Service](https://ibm-hyper-protect.github.io/) 的使用场景
+ The signature server shows a scenario of [Hyper Protect Service](https://ibm-hyper-protect.github.io/) 
 
 ## 1.1. 环境介绍
 ![](./img/5.jpg)
-- 通过类似多方合约的方式部署签名服务器到可信执行环境HPVS 
-- Client 通过RestAPI与签名服务器通信 （生产环境还需要TLS证书验证）
-- 由于签名服务器是以黑盒子的方式部署到HPVS内的，这里log信息通过内网发送到logDNA对log进行收集与可视化检索。
-- 签名服务器通过GREP11 API 与HPCS 通信 (生产环境还需要有MTLS 双向证书验证)
-- 经过加密的密钥，持久化到HPDBaaS内 
-- IAM 对访问做认证以及权限控制
-- VPC 的security group 和Network ACL 对网络做内网通信控制 
-- 所有通信都在内网内
-- 支持IPsec 与 专线的内网打通，或者通过Floating IP+ firewall的方式对外暴露服务
+- Deploy the signature server to the trusted execution environment HPVS in a manner similar to a multi-party contract
+- The client communicates with the signature server through RestAPI (the production environment also requires TLS certificate verification)
+- Since the signature server is deployed in HPVS in the form of a black box, the log information is sent to logDNA through the intranet to collect and visualize the log.
+- The signing server communicates with HPCS through the GREP11 API (MTLS mutual certificate verification is also required in the production environment)
+- Encrypted key, persisted in HPDBaaS
+- IAM authenticates access and controls permissions
+- VPC's security group and Network ACL control intranet communication on the network
+- All communications are within the intranet
+- Support IPsec to connect with private network intranet, or expose services through Floating IP+ firewall
 
-
-## 1.2. Client 通过下列endpoint 与签名服务器通信
+## 1.2. The client communicates with the signature server through the following endpoints
 
 ```sh
 
@@ -134,98 +133,89 @@ echo -n "MEUCIAgZXWc826mQ9ogdt6lVYiYYHp16rDyutc4Hb8OQdH3CAiEA3OOoTPtz9QW13+RlDTO
 openssl pkeyutl -verify -in test.data -sigfile  signature.sig  -pubin  -inkey ec256-key-pub.pem
 
 ```
-## 1.3. GREP11 API 使用举例时序图与说明
+## 1.3. Sequence diagram and description of GREP11 API usage example
 ![](./img/GREP11%20API%20%20使用场景说明-详细版本.jpg)
 
-### 1.3.1. 步骤说明
+### 1.3.1. Step-by-step instructions
 
 
-## 1.4. 导入密钥流程
+## 1.4. Import key process
 
-###  1.4.1. GREP11 AP1 导入私钥时序图与说明
+###  1.4.1. GREP11 AP1 import private key sequence diagram and description
 ![](./img/grep11_import_key.jpg)
 
-### 1.4.2. 步骤说明
-   - 说明： 所有HPCS产生的私钥都通过内部的master key进行包裹后返回的，明文密钥的生命周期不能离开HPCS内部的HSM加密卡。在密钥使用前，HPCS会对被包裹的密钥在内部进行解包裹（解密），密钥使用后，明文密钥在HSM内部被丢弃，这些步骤都是发生在HPCS内部的，客户是无感知的，所以下面不对这部分内容做特别说明。
-
-   - 大致流程如下：
-   导入的密钥需要在导入之前对密钥进行加密，然后在HSM内部进行解密。在HSM 内部，master key对解密后的明文私钥进行包裹，HPCS返回被包裹的私钥给签名服务器，签名服务器用本地的KEK在HPCS内对被包裹的私钥进行二次加密，被KEK二次加密的私钥，持久化到HPDBaaS内。
-
-   - 以上步骤对应的客户端请求为
+### 1.4.2. Step-by-step instructions
+   - Note: All the private keys generated by HPCS are wrapped by the internal master key and returned. The life cycle of the plaintext key cannot leave the HSM encryption card inside the HPCS. Before the key is used, HPCS will unwrap (decrypt) the wrapped key internally. After the key is used, the plaintext key will be discarded inside the HSM. These steps all take place inside the HPCS, and the client has no Perceived, so this part of the content will not be specifically explained below.
+   - The general process is as follows: The imported key needs to be encrypted before being imported, and then decrypted inside the HSM. Inside the HSM, the master key wraps the decrypted plaintext private key, and HPCS returns the wrapped private key to the signature server. The second-encrypted private key is persisted in HPDBaaS.
+   - The client request corresponding to the above steps is
      ```sh
       curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/import_ec -X POST -s  -F "file=@./ec256-key-pair.pem" | jq
      ```
-   
-   - 疑问1：HPCS 对私钥使用master key 包裹后，相当于密钥已经被master key加密了，为什么还需要用签名服务器内的KEK进行二次加密？
-   这一步是可选的，设计这一步的目的是签名服务器的KEK是保存在HPVS内的secure enclave内的安全边界内的可信执行环境里的，所以这可以保证所有的操作必须由签名服务器来发起，因为只有签名服务器内有KEK
+   - Question 1: After HPCS wraps the private key with the master key, it is equivalent to that the key has been encrypted by the master key. Why is it necessary to use the KEK in the signature server for secondary encryption? This step is optional. The purpose of this step is that the KEK of the signing server is stored in the trusted execution environment within the security boundary of the secure enclave in HPVS, so this ensures that all operations must be performed by the signing server. Initiate because only the signature server has a KEK in it
+   - Question 2: How to ensure the security and persistence of the KEK in the signature server? The signature server runs in a trusted execution environment (confidential computing) within HPVS and is deployed through a multi-party contract. The secure enclave in the signature server can be used for snapshots and cross-region backups, and it is encrypted with the seed generated during multi-party deployment, which means that only the client can enter the decryption, because the seed holder is through The form of multi-party deployment is controlled by multiple holders of the client.
 
+# 2. Deploy the signature server
 
-   - 疑问2： 如何保证签名服务器内对KEK的安全与可持久性？
-    签名服务器本事运行在HPVS内的可信执行环境里（机密计算）并且通过多方合约的方式部署上去的。 签名服务器内的secure enclave 是可以做快照与跨区域备份的，而且是用多方部署的时候的产生的种子进行加密的，这意味着只有客户自己才能进场解密，因为种子的持有人是通过多方部署的形式由客户多个持有人控制的。
+## 2.1. Introduction to HPVS
 
+Based on the [confidential computing architecture](https://www.ibm.com/cloud/learn/confidential-computing), [HPVS for VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se#about_hyperprotect_vs_forvpc) provides a safe, reliable and credible way of deploying applications to computing resources. Compared with traditional CICD and business specification processes, the deployment process provided by IBM can ensure that images and environments cannot be It is tampered with and provides role isolation to ensure that holders of sensitive information or service endpoints cannot access the production environment, and at the same time, it can ensure that deployers cannot access sensitive information.
 
-# 2. 部署签名服务器
+### 2.1.1. [Main Features of HPVS](https://www.ibm.com/cloud/blog/announcements/ibm-hyper-protect-virtual-servers-for-virtual-private-cloud)
 
-## 2.1. HPVS 介绍
-[HPVS for VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se#about_hyperprotect_vs_forvpc) 基于[机密计算](https://www.ibm.com/cloud/learn/confidential-computing)的体系结构下，提供了一种安全可靠可信的部署应用到计算资源的方式，和传统的CICD与业务规范流程相比，IBM提供的部署流程能保证镜像与环境无法被篡改，同时提供了角色隔离，保证敏感信息的持有者或者服务端点无法接触到生产环境，同时可以保证部署人员无法接触到敏感信息。
+- **Secure Execution**：Ensure that unauthorized users, including IBM Cloud administrators, cannot access applications through technology, not process. Workloads are locked down by separate instance-level security perimeters.
+- **Multi-party contracts and proof of deployment**：Apply zero trust principles from workload development to deployment. With multiple roles and legal entities collaborating, segregation of responsibilities and access rights is critical. Hyper Protect Virtual Servers for VPC is based on the concept of cryptographic contracts, enabling each role to provide its own contribution while ensuring that no other role can access this data or IP through encryption. Deployments can be verified by auditors with attestation records, which are signed and encrypted to ensure that only auditors have this insight.
+- **Malware Protection**：Use Secure Build to set up a verification process to ensure that only authorized code runs in the application. Hyper Protect Virtual Servers for VPC only deploy container versions, which are verified at deployment time.
+- **Bring Your Own OCI Image**：Use any Open Container Initiative (OCI) image and get the benefits of a confidential computing solution for an extra level of protection
+- **Flexible Deployment**：Choose from a variety of profile sizes and scale as needed to secure containerized applications and pay by the hour.
 
-### 2.1.1. [HPVS 的主要特性](https://www.ibm.com/cloud/blog/announcements/ibm-hyper-protect-virtual-servers-for-virtual-private-cloud)
-
-- **安全执行**：通过技术而不是流程保证未经授权的用户（包括 IBM Cloud 管理员）无法访问应用程序。工作负载被单独的实例级安全边界锁定。
-- **多方合同和部署证明**：从工作负载开发到部署应用零信任原则。随着多个角色和法人实体的协作，区分职责和访问权限至关重要。适用于 VPC 的 Hyper Protect Virtual Servers 基于加密合同概念，使每个角色都能够提供自己的贡献，同时通过加密确保其他角色都无法访问此数据或IP。部署可以由审计人员通过证明记录进行验证，该记录经过签名和加密，以确保只有审计人员具有这种洞察力。
-- **恶意软件保护**：利用 Secure Build 设置验证过程，以确保只有授权代码在应用程序中运行。Hyper Protect Virtual Servers for VPC 仅部署容器版本，这些版本在部署时进行验证。
-- **自带 OCI 映像**：使用任何开放容器倡议 (OCI) 映像并获得机密计算解决方案的好处，以提供额外级别的保护
-- **灵活的部署**：从各种配置文件大小中进行选择，并根据需要进行扩展，以保护容器化应用程序并按小时付费。
-
-## 2.2. 主要步骤描述与角色分离设计
+## 2.2. Main step description and role separation design
 ![byoi](./img/1.jpg)
 
-### 2.2.1. 主要步骤概述
-  
-- 1 开发人员push 代码，触发CICD流程，版本服务器构建版本镜像
-- 2 版本经理检视代码，检视通过，使用自己的私钥进行签名，只有经过版本经理签名的镜像才能够被部署
-- 3 签名后的镜像被推送到镜像仓库
-- 4 通过compose 生成部署模版，使用公钥对部署模版加密（加密为可选步骤）
-- 5 构造环境模版，使用公钥对环境变量进行加密（加密为可选步骤）
-- 6 合并模版与变量，使用私钥对模版进行摘要签名 （签名摘要为可选步骤）
-- 7 运维人员通过模版部署应用
-- 8 服务器获取到模版后，使用私钥进行解密，并提取环境变量里的公钥对模版进行指纹验证。
-- 9 服务器提取部署模版里的公钥对镜像进行验证
-- 验证通过后，应用成功部署
+### 2.2.1. Overview of the main steps
 
-（只有运维人员需要接触生产环境，但是运维人员的权限是最低的，如果部署模版经过加密，那么运维人员获取不到任何信息。）
-（workload模版为一些部署镜像信息以及一些非敏感变量，env模版通常为一些环境变量的信息）
-## 2.3. 角色定义
+- 1 The developer pushes the code, triggers the CICD process, and the version server builds the version image
+- 2 The version manager inspects the code, passes the inspection, and signs it with his own private key. Only images signed by the version manager can be deployed
+- 3 The signed image is pushed to the mirror repository
+- 4 Generate a deployment template through compose, and use the public key to encrypt the deployment template (encryption is an optional step)
+- 5 Construct an environment template and use the public key to encrypt the environment variables (encryption is an optional step)
+- 6 Merge the template and variables, and use the private key to digest the signature of the template (signature digest is an optional step)
+- 7 Operation and maintenance personnel deploy applications through templates
+- 8 After the server obtains the template, it decrypts it with the private key, and extracts the public key in the environment variable to perform fingerprint verification on the template.
+- 9 The server extracts the public key in the deployment template to verify the image
+- After the verification is passed, the application is successfully deployed
 
-   角色 | 工作内容 | 安全与隔离性
+(Only the operation and maintenance personnel need to access the production environment, but the authority of the operation and maintenance personnel is the lowest. If the deployment template is encrypted, the operation and maintenance personnel cannot obtain any information.) (The workload template is some deployment image information and some non-sensitive variables. , the env template is usually information about some environment variables)
+
+## 2.3. Role Definition
+
+   角色 | work content | security and isolation
   --|:--|:--
-  版本经理 | 检视代码与版本构建服务器的日志，签名镜像。通过CICD流程或者手动推送镜像，如果手动推送镜像，需要访问镜像仓库的权限 | 不需要接触生产环境 
-  角色1 | 构建workload模版 | 不需要接触生产环境
-  角色2 | 构建环境变量模版 | 不需要接触生产环境
-  运维人员 | 从角色1和角色2拿到被加密的部署文件部署应用，但是无法读取部署文件的内容 | 不能接触敏感信息，只能部署应用
+  version manager | View code and version build server logs, sign images. Push the image through the CICD process or manually. If you push the image manually, you need permission to access the image repository | No need to touch production environment 
+  role 1 | Build the workload template | No need to touch production environment
+  role 2 | Build environment variable template | No need to touch production environment
+  Operation and maintenance personnel | The encrypted deployment file is obtained from role 1 and role 2 to deploy the application, but the content of the deployment file cannot be read | No access to sensitive information, only applications can be deployed
 
-## 2.4. 准备工作
+## 2.4. Preparations
 
-### 2.4.1. [安装IBMCLI](https://cloud.ibm.com/docs/cli?topic=cli-getting-started)
-### 2.4.2. 安装IBM Container Registry
+### 2.4.1. [Installing IBM CLI](https://cloud.ibm.com/docs/cli?topic=cli-getting-started)
+### 2.4.2. Install IBM Container Registry
 ```
 ibmcloud plugin repo-plugins -r 'IBM Cloud'  # list all of plugin
 ibmcloud plugin install container-registry
 ```
-### 2.4.3. [安装Docker](https://docs.docker.com/engine/install/)
+### 2.4.3. [Install Docker](https://docs.docker.com/engine/install/)
   
 
-## 2.5. 构建镜像
+## 2.5. Building the image
 
- 构建并上传镜像到IBM container registry  
- 这一步通常由CICD工具或者构建服务器自动触发，我们这里手动模拟这个流程。
+ The step of building and uploading the image to the IBM container registry is usually triggered automatically by the CICD tool or the build server. We simulate this process manually here.
  
-### 2.5.1. 克隆代码仓库
+### 2.5.1. Clone the repository
 ```sh
 git clone https://github.com/threen134/signing_server.git
 ```
 
-### 2.5.2. 构建镜像
+### 2.5.2. Building an Image
 ```sh
 # 创建镜像
 cd ./signing_server
@@ -234,7 +224,7 @@ docker build -t signing_server:v3  .
 docker buildx build --platform=linux/s390x  -t signing_server:v1 .  
 ```
 
-### 2.5.3. tag镜像
+### 2.5.3. Tag image
 ```sh
 # tag 镜像
 # au.icr.io 为上文中 IBM CR的endpoint 
@@ -243,20 +233,20 @@ docker buildx build --platform=linux/s390x  -t signing_server:v1 .
 docker tag signing_server:v1 au.icr.io/poc-demo/signing-server:v1
 ```
 
-## 2.6. 版本经理检视代码后，执行签名操作。
-###  2.6.1. 创建trust key
+## 2.6. After the version manager inspects the code, execute the signing operation.
+###  2.6.1. Create a trust key
 ```sh
 # 创建的密钥需要输入密码，后面签名镜像的时候需要使用这个密钥读取私钥进行签名
 docker trust key generate poc-test-sign-key
 ```
-###  2.6.2. 开启DCT[(Docker Content Trust)](https://docs.docker.com/engine/security/trust/#signing-images-with-docker-content-trust)
+###  2.6.2. Enable DCT[(Docker Content Trust)](https://docs.docker.com/engine/security/trust/#signing-images-with-docker-content-trust)
 ```sh
 # DCT 环境变量的语法格式为https://notary.<region>.icr.io， 记得调整为自己对应的region
 # 亚洲地区有au，北美区域有us支持 notary
 export DOCKER_CONTENT_TRUST=1
 export DOCKER_CONTENT_TRUST_SERVER=https://notary.au.icr.io
 ```
-### 2.6.3. 上传镜像并签名
+### 2.6.3. Upload image and sign
 ```sh
 # 登陆ibm container registry 
 ibmcloud login --apikey <your api key> -g Default -r jp-tok
@@ -271,25 +261,27 @@ docker push au.icr.io/poc-demo/signing-server:v1
 docker trust inspect au.icr.io/poc-demo/signing-server:v1 
 ```
 
-### 2.6.4. 获取签名的公钥
- 把这个公钥分享给`角色1`, 角色1需要把公钥加入到构建模版，后续镜像被部署的时候(拓扑图步骤9)，需要这个公钥验证签名来保证镜像的完整性。
+### 2.6.4. Obtaining the signed public key
+
+To share this public key `role 1`, role 1 needs to add the public key to the build template. When the subsequent image is deployed (step 9 in the topology diagram), this public key is required to verify the signature to ensure the integrity of the image.
+
 ```sh
 # cat ~/.docker/trust/tuf/au.icr.io/<username>/<imagename>/metadata/root.json
 cat ~/.docker/trust/tuf/au.icr.io/poc-demo/signing-server/metadata/root.json  |jq
 ```
-**至此，版本经理或者CICD流程，构建了一个image，并且使用自己的私钥签名了这个image。**  
+**At this point, the version manager or CICD process has built an image and signed the image with its own private key.**  
 
 
-## 2.7. `角色1`构建WORKLOAD模版
-### 2.7.1. 把compose模版文件转码为base64
+## 2.7. `role 1` Build the WORKLOAD template
+### 2.7.1. Convert the compose template file to base64
 
 ```sh
 cd build
 tar czvf - -C compose . | base64 -w0
 H4sIAOG4/GIAA+3TTW+CMBwGcM77FD3syoui4k....
 ```
-备注：
-如果执行环境是MAC， 请使用 gnu版本的 tar 与 base64 
+Note: If the execution environment is MAC, please use the gnu version of tar and base64
+
 ```sh
 brew install coreutils
 brew install gnu-tar
@@ -298,7 +290,7 @@ alias base64=gbase64
 ```
 
 
-### 2.7.2. 构建workload模版
+### 2.7.2. Building a Workload Template
 ```yaml
 # workload.yaml
 type: workload
@@ -342,12 +334,12 @@ volumes:
 ```
 
 
-### 2.7.3. 下载ibm的公钥 
+### 2.7.3. Download ibm public key 
 ```sh
 wget https://cloud.ibm.com/media/docs/downloads/hyper-protect-container-runtime/ibm-hyper-protect-container-runtime-1-0-s390x-3-encrypt.crt
 ```
 
-### 2.7.4. 加密workload 
+### 2.7.4. Encrypting workloads 
 ```sh
 # 设置变量
 WORKLOAD=./workload.yaml
@@ -375,7 +367,7 @@ echo 'export PATH="/opt/homebrew/opt/openssl@3/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc 
 ```
 
-## 2.8. `角色2`构建ENV模版
+## 2.8. `role2`Build an ENV template
 
 ### 2.8.1. 创建env 模版
 这里主要是[设置logDNA的字段](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se&interface=ui#hpcr_setup_logging),可选的数据卷与环境变量
@@ -402,12 +394,12 @@ env:
 
 部署的所有日志和后续应用程序的日志，可以通过logDNA来获取日志，请[参考这个文档](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se&interface=ui#hpcr_setup_logging)创建并获取LogDNA实例的信息，同时logDNA可以使用[内网链接](https://cloud.ibm.com/docs/log-analysis?topic=log-analysis-service-connection#endpoint-setup)    
 
-### 2.8.2. 下载ibm的公钥 
+### 2.8.2. Download ibm public key 
 ```sh
 wget https://cloud.ibm.com/media/docs/downloads/hyper-protect-container-runtime/ibm-hyper-protect-container-runtime-1-0-s390x-3-encrypt.crt
 ```
 
-### 2.8.3. 加密env 模版
+### 2.8.3. Encrypted env template
 ```sh
 # 设置变量
 ENV=./env.yaml
@@ -424,29 +416,30 @@ echo "hyper-protect-basic.${ENCRYPTED_PASSWORD}.${ENCRYPTED_ENV}"
 #当HPVS第一次构建的时候它会用私钥对密码进行解密，得到明文的密码后，用密码对env进行解密  
 ```
 
-## 2.9. 运维人员部署应用
+## 2.9. Operation and maintenance personnel deploy applications
 
-### 2.9.1. 构建`user-data.yaml`文件
+### 2.9.1. buile `user-data.yaml`
 从角色1与角色2拿到加密后对数据后构建类似下面的文件
 ```yaml
   workload: hyper-protect-basic.js7TGt77EQ5bgTIKk5C0pViFTRHqWtn..............
   env: hyper-protect-basic.VWg/5/SWE+9jLfhr8q4i.........
 ```
-### 2.9.2. 通过IBM console 创建实例 
-配置如下图  
+### 2.9.2. Creating an instance through the IBM console 
+The configuration is as shown below  
 <img src="./img/2.jpeg" width="500" alt="图片名称" align=center>  
 
-### 2.9.3. 通过logDNA 查看部署情况
+### 2.9.3. Check the deployment status through logDNA
 <img src="./img/3.jpg" width="500" alt="图片名称" align=center>
 
-### 2.9.4. 验证应用部署
-挂载一个floating IP 到部署的签名服务器, 然后list 状态机·
+### 2.9.4. Verifying Application Deployment
+Mount a floating IP to the deployed signature server, then list the state machine ·
 ```sh
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/get_mechanismsc
 ```
 
-## 2.10. 通过明文模版部署应用
- 如果你没有加密部署的需求，也可以通过明文模版的方式部署应用，这通常用于开发环境或者对部署进行测试时使用。
+## 2.10. Deploying an application via a plaintext template
+If you do not need encrypted deployment, you can also deploy the application through the clear text template, which is usually used in the development environment or when testing the deployment.
+
 ```yaml
 # cat user-data.yaml
 workload: |
@@ -493,9 +486,9 @@ env: |
     HPCS_IAM_KEY: "3lHSZqcuCh4b_....
 ```
 
-# 3. 使用HPCS签名交易，并上测试链广播交易
-## 3.1. 主要步骤说明
-### 3.1.1. 通过HPCS 产生 钱包
+# 3. Sign the transaction using HPCS and broadcast the transaction on the test chain
+## 3.1. Description of main steps
+### 3.1.1. Generate wallet through HPCS
 ```sh
 
 export SIGN_HOST=localhost
@@ -507,11 +500,11 @@ export KEY_UUID=c006f05e-002c-4fcf-b530-6e9820db03db
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/get_ethereum_key/${KEY_UUID}  -s | jq
 ```
 
-### 3.1.2. 申请测试币
+### 3.1.2. Apply for test coins
 拿到上一步产生的地址，在[水管](https://fauceth.komputing.org/)上申请`rinkeby`测试币
-### 3.1.3. 获取一个目标地址
+### 3.1.3. Get a target address
 获取一个目标交易地址, 或者通过上面的步骤生产一个新的钱包并获取 `to address`
-### 3.1.4. 使用 ethereum-client 广播交易到 测试链 rinkeby
+### 3.1.4. Use ethereum-client to broadcast transactions to the test chain rinkeby
 - 加载环境变量
 ```sh
 cd ./ethereum-client
@@ -520,18 +513,18 @@ cp ./env.sh.template ./env.sh
 source ./ethereum-client/env.sh
 ```
 
-### 3.1.5. 在测试链上签名交易
+### 3.1.5. Signing transactions on the test chain
 ```sh 
   go run ./... 
   # 得到输出
   https://rinkeby.etherscan.io/tx/0x71231d85bfa7497f09a54023535874779a3e73a2c0084fa8a1612f9cb709a7a1 
 ```
 
-### 3.1.6. 查看交易结果
+### 3.1.6. View transaction results
 
 ![6](./img/6.jpg)
 
-# 4. 参考文档
+# 4. Reference Documentation
 - [About the contract](https://cloud.ibm.com/docs/vpc?topic=vpc-about-contract_se#hpcr_contract_encrypt_workload)
 - [signing-images-with-docker-content-trust](https://docs.docker.com/engine/security/trust/#signing-images-with-docker-content-trust) 
 - [How to Sign Your Docker Images](https://www.cloudsavvyit.com/12388/how-to-sign-your-docker-images-to-increase-trust)
