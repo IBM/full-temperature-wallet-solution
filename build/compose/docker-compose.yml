@@ -1,0 +1,21 @@
+services:
+  signing-server:
+    image: au.icr.io/poc-demo/signing-server:v1
+    ports:
+      - 80:80
+      - 8080:8080
+    volumes:
+      - /mnt/secure_enclave:/etc/secure_enclave
+    environment:
+      - POSTGRESS_ADDRESS=${POSTGRESS_ADDRESS}
+      - POSTGRESS_PORT=${POSTGRESS_PORT}
+      - POSTGRESS_USERNAME=${POSTGRESS_USERNAME}
+      - POSTGRESS_PASSWORD=${POSTGRESS_PASSWORD}
+      - POSTGRESS_DBNAME=${POSTGRESS_DBNAME}
+      - POSTGRESS_SSLROOTCERT=${POSTGRESS_SSLROOTCERT}
+      - HPCS_ADDRESS=${HPCS_ADDRESS}
+      - HPCS_PORT=${HPCS_PORT}
+      - HPCS_INSTANCE_ID=${HPCS_INSTANCE_ID}
+      - HPCS_IAM_KEY=${HPCS_IAM_KEY}
+      - HPCS_IAM_ENDPOINT=${HPCS_IAM_ENDPOINT}
+      - SECURE_ENCLAVE_PATH=${SECURE_ENCLAVE_PATH}

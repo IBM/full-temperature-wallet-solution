@@ -1,0 +1,13 @@
+type: env
+logging:
+  logDNA:
+    hostname: syslog-a.privat......
+    ingestionKey: 7a98add39.......
+    port: 6514
+volumes:
+  volume1:
+    seed: thisisatest
+env:
+  POSTGRESS_PASSWORD: "....."
+  POSTGRESS_SSLROOTCERT: "LS0tLS1CRUd........"
+  HPCS_IAM_KEY: "3lHSZqcuC......"
