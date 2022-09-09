@@ -134,7 +134,7 @@ openssl pkeyutl -verify -in test.data -sigfile  signature.sig  -pubin  -inkey ec
 
 ```
 ## 1.3. Sequence diagram and description of GREP11 API usage example
-![](./img/grep11_import_key.jpg)
+![](./img/GREP11_API_interaction.jpg)
 
 ### 1.3.1. Step-by-step instructions
 
@@ -384,15 +384,15 @@ volumes:
   volume1:
     seed: thisisatest
 env:
-  # 设置一些敏感环境信息
+  # Set some sensitive environment information
   POSTGRESS_PASSWORD: xxxxx
-  # PG 的证书base64 编码信息
+  # Base64 encoding information of the PG certificate
   # echo ./cert.pem | base64 -w0
   POSTGRESS_SSLROOTCERT: "LS0tLS1CRUdJTiBDRVJUSU....."
   HPCS_IAM_KEY: "xxxx...."
-```
+```    
 
-部署的所有日志和后续应用程序的日志，可以通过logDNA来获取日志，请[参考这个文档](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se&interface=ui#hpcr_setup_logging)创建并获取LogDNA实例的信息，同时logDNA可以使用[内网链接](https://cloud.ibm.com/docs/log-analysis?topic=log-analysis-service-connection#endpoint-setup)    
+All deployed logs and subsequent application logs can be obtained through logDNA. Please refer to [this document](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se&interface=ui#hpcr_setup_logging) to create and obtain information about LogDNA instances, and logDNA can use [intranet links](https://cloud.ibm.com/docs/log-analysis?topic=log-analysis-service-connection#endpoint-setup)
 
 ### 2.8.2. Download ibm public key 
 ```sh
