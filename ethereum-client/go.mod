@@ -1,9 +1,9 @@
-module ethereum-client
+module github.com/IBM/full-temperature-wallet-solution/ethereum-client
 
 go 1.19
 
 require (
-	github.com/ethereum/go-ethereum v1.10.21
+	github.com/ethereum/go-ethereum v1.10.23
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/vrischmann/envconfig v1.3.0
