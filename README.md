@@ -140,9 +140,11 @@ The client request corresponding to the above steps is
   
 #### 1.4.1. Frequently asked questions
 **Q1:** After HPCS wraps the private key with the master key, it is equivalent to that the key has been encrypted by the master key. Why is it necessary to use the KEK in the signature server for secondary encryption? 
+
 **A:** This step is optional. The purpose of this step is that the KEK of the signing server is stored in the trusted execution environment within the security boundary of the secure enclave in HPVS, and this ensures that all operations must be performed by the signing server. Initiately, it is because only the signature server has a KEK in it.
 
 **Q2:** How to ensure the security and persistence of the KEK in the signature server?
+
 **A:** The signature server runs in a trusted execution environment (confidential computing) within HPVS and is deployed through a multi-party contract. The secure enclave in the signature server can be used for snapshots and cross-region backups, and it is encrypted with the seed that is generated during multi-party deployment. Therefore, only the client can enter the decryption because the seed holder is through the form of multi-party deployment that is controlled by multiple holders of the client.
 
 ## 2. Deploying the signature server
