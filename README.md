@@ -436,10 +436,12 @@ The operator is responsible to deploy the applications.
 2. Create an instance in the IBM console.
   Refer to the configuration in the following example. 
   <img src="./img/create-hpvs-instance.jpg" width="500" alt="Creating an HPVS for VPC instance" align=center> 
+  
   *Figure 5. Create an HPVS for VPC instance*  
 
 3. Check the deployment status with logDNA.
   <img src="./img/Logging.jpg" width="500" alt="Logging" align=center>
+  
   *Figure 6. Logging example*
 
 4. Verify the application deployment. Mount a floating IP to the deployed signature server, then list the state machine.
