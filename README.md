@@ -298,7 +298,7 @@ Role 1 is responsible to build the workload template.
   # workload.yaml
   type: workload
   auths:
-    # au.icr.io 为container registry 的endpoint， 
+    # au.icr.io is the endpoint of container registry
     au.icr.io:
       # Specify the user name and password for user CR. The user name of IBM CR is `iamapikey`.
       password: xxxx
