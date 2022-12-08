@@ -21,8 +21,8 @@ The signature server shows a scenario of using [Hyper Protect Service](https://d
   - [2.8. Build an ENV template](#28-build-an-enviroment-template)
   - [2.9. Deploying applications](#29-deploying-applications)
   - [2.10. Deploying an application with a plaintext template](#210-deploying-an-application-with-a-plaintext-template)
-- [3. Sign the transaction by using HPCS and broadcast the transaction on the test chain](#3-sign-the-transaction-by-using-hpcs-and-broadcast-the-transaction-on-the-test-chain)
-- [4. Reference Documentation](#4-reference-documentation)
+- [3. Signing the transaction with HPCS and broadcasting the transaction on the test chain](#3-signing-the-transaction-with-hpcs-and-broadcasting-the-transaction-on-the-test-chain)
+- [4. Reference documentation](#4-reference-documentation)
 
 
 ## 1. Signature server overview
@@ -498,7 +498,7 @@ env: |
     HPCS_IAM_KEY: "3lHSZqcuCh4b_....
 ```
 
-## 3. Sign the transaction by using HPCS and broadcast the transaction on the test chain
+## 3. Signing the transaction with HPCS and broadcasting the transaction on the test chain
 
 1. Generate a wallet with HPCS.
   ```sh
