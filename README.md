@@ -433,15 +433,12 @@ The operator is responsible to deploy the applications.
     env: hyper-protect-basic.VWg/5/SWE+9jLfhr8q4i.........
   ```
 
-2. Create an instance in the IBM console.
-  Refer to the configuration in the following example. 
-  <img src="./img/create-hpvs-instance.jpg" width="500" alt="Creating an HPVS for VPC instance" align=center> 
-  
+2. Create an instance in the IBM console. Refer to the configuration in the following example. 
+  ![Creating an HPVS for VPC instance](./img/create-hpvs-instance.jpg) 
   *Figure 5. Create an HPVS for VPC instance*  
 
 3. Check the deployment status with logDNA.
-  <img src="./img/Logging.jpg" width="500" alt="Logging" align=center>
-  
+  ![Logging](./img/Logging.jpg) 
   *Figure 6. Logging example*
 
 4. Verify the application deployment. Mount a floating IP to the deployed signature server, then list the state machine.
