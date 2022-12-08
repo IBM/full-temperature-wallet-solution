@@ -115,7 +115,7 @@ openssl pkeyutl -verify -in test.data -sigfile  signature.sig  -pubin  -inkey ec
 
 Figure 2 shows the sequence of GREP11 API interaction process.
 
-![GREP11 API interaction sequence](./img/grep11_API_interaction.jpg)
+![GREP11 API interaction sequence](./img/grep11-API-interaction.jpg) 
 *Figure 2. GREP11 API interaction sequence diagram*
 
 
