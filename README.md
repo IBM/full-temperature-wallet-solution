@@ -156,28 +156,28 @@ Based on the [confidential computing architecture](https://www.ibm.com/cloud/lea
 
 #### 2.1.1. Key features of HPVS
 
-[HPVS for PVC](https://www.ibm.com/cloud/blog/announcements/ibm-hyper-protect-virtual-servers-for-virtual-private-cloud) provides the following key functions:
+[HPVS for PVC](https://www.ibm.com/cloud/blog/announcements/ibm-hyper-protect-virtual-servers-for-virtual-private-cloud) provides the following key functions: 
 
-- **Secure execution**：Ensure that unauthorized users, including IBM Cloud administrators, cannot access applications technologyly, not operationally. Workloads are locked down by separate instance-level security boundary.
-- **Multi-party contracts and proof of deployment**：While applying Zero Trust principles from workload development to deployment, multiple roles and legal entities will collaborate together. Therefore, it's critical to segregate responsibilities and access authorities. HPVS for VPC is based on the concept of cryptographic contracts, which enables each role to provide its own contribution while ensuring that no other roles can access the encrypted data or IP. Deployments can be verified by auditors with attestation records, which are signed and encrypted to ensure that only auditors can do so.
-- **Malware protection**：Use Secure Build to set up a verification process to ensure that only authorized code runs in the application. HPVS for VPC deploy only container versions that are verified at deployment time.
-- **Bring your own OCI image**：Use any Open Container Initiative (OCI) image and get the benefits of a confidential computing solution for an extra level of protection.
-- **Flexible deployment**：Choose from a variety of profile sizes and scale as needed to secure containerized applications and pay by hours.
+- **Secure execution**: Ensure that unauthorized users, including IBM Cloud administrators, cannot access applications technologyly, not operationally. Workloads are locked down by separate instance-level security boundary.
+- **Multi-party contracts and proof of deployment**: While applying Zero Trust principles from workload development to deployment, multiple roles and legal entities will collaborate together. Therefore, it's critical to segregate responsibilities and access authorities. HPVS for VPC is based on the concept of cryptographic contracts, which enables each role to provide its own contribution while ensuring that no other roles can access the encrypted data or IP. Deployments can be verified by auditors with attestation records, which are signed and encrypted to ensure that only auditors can do so.
+- **Malware protection**: Use Secure Build to set up a verification process to ensure that only authorized code runs in the application. HPVS for VPC deploy only container versions that are verified at deployment time.
+- **Bring your own OCI image**: Use any Open Container Initiative (OCI) image and get the benefits of a confidential computing solution for an extra level of protection.
+- **Flexible deployment**: Choose from a variety of profile sizes and scale as needed to secure containerized applications and pay by hours.
 
 ### 2.2. Main steps description and role separation design
 ![Main steps](./img/deploy-main-steps.jpg)
 *Figure 4. Signature server deployment steps*
 
 Main steps explanation:
-- **1** The developer pushes the code, triggers the CICD process, and builds the version image.
-- **2** The version manager inspects the code, passes the inspection, and signs it with his own private key. Note that only images that the version manager signs can be deployed.
-- **3** The signed image is pushed to the mirror repository.
-- **4** Compose and generate a deployment template, and use the public key to encrypt the deployment template. Encryption is an optional step.
-- **5** Create an environment template and use the public key to encrypt the environment variables. Encryption is an optional step.
-- **6** Merge the deploy template and evironment variables, and use the private key to sign the template. Signature is an optional step.
-- **7** The operator deploys applications with the template.
-- **8** After the server obtains the template, it decrypts the template with the private key, and then extracts the public key in the environment variable to perform fingerprint verification.
-- **9** The server extracts the public key in the deployment template to verify the image. After the verification is passed, the application is successfully deployed.
+1. The developer pushes the code, triggers the CICD process, and builds the version image.
+2. The version manager inspects the code, passes the inspection, and signs it with his own private key. Note that only images that the version manager signs can be deployed.
+3. The signed image is pushed to the mirror repository.
+4. Compose and generate a deployment template, and use the public key to encrypt the deployment template. Encryption is an optional step.
+5. Create an environment template and use the public key to encrypt the environment variables. Encryption is an optional step.
+6.  Merge the deploy template and evironment variables, and use the private key to sign the template. Signature is an optional step.
+7. The operator deploys applications with the template.
+8. After the server obtains the template, it decrypts the template with the private key, and then extracts the public key in the environment variable to perform fingerprint verification.
+9. The server extracts the public key in the deployment template to verify the image. After the verification is passed, the application is successfully deployed.
 
 **Notes:**
 - Only the operator needs to access the production environment, but the authority of the operator is the lowest. If the deployment template is encrypted, the operator cannot obtain any information. 
