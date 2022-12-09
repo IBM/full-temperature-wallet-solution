@@ -14,4 +14,4 @@ RUN go build -v -o /usr/local/bin/ ./...
 # RUN wget https://github.com/threen134/signing_server/releases/download/s390x-v1/signing_server  /usr/local/bin/ 
 # RUN chmod +x /usr/local/bin/signing_server
 
-CMD ["signing_server"]
+CMD ["full-temperature-wallet-solution"]

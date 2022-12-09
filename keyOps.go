@@ -1029,7 +1029,10 @@ func toString(src []byte) string {
 }
 
 func toByte(src string) []byte {
-	result, _ := base64.RawStdEncoding.DecodeString(src)
+	result, err := base64.StdEncoding.DecodeString(src)
+	if err != nil {
+		log.Panic(err)
+	}
 	return result
 }
 

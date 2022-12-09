@@ -229,7 +229,7 @@ git clone https://github.com/threen134/signing_server.git
 ```sh
 # 创建镜像
 cd ./signing_server
-docker build -t signing_server:v3  .
+docker build -t signing_server:v1  .
 # 如果是非s39x架构， 使用下面对命令
 docker buildx build --platform=linux/s390x  -t signing_server:v1 .  
 ```
@@ -395,7 +395,7 @@ env:
   # 设置一些敏感环境信息
   POSTGRESS_PASSWORD: xxxxx
   # PG 的证书base64 编码信息
-  # echo ./cert.pem | base64 -w0
+  # cat ./cert.pem | base64 -w0
   POSTGRESS_SSLROOTCERT: "LS0tLS1CRUdJTiBDRVJUSU....."
   HPCS_IAM_KEY: "xxxx...."
 ```
