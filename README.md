@@ -6,7 +6,6 @@ The signature server shows a scenario of using [Hyper Protect Service](https://d
   - [1.1. Environment introduction](#11-environment-introduction)
   - [1.2. Client communication endpoints](#12-client-communication-endpoints)
   - [1.3. GREP11 API usage example](#13-grep11-api-usage-example)
-    - [1.3.1. Step-by-step instructions](#131-step-by-step-instructions)
   - [1.4. Importing the key](#14-import-key-process)
     - [1.4.1. Frequently asked questions](#141-frequently-asked-questions)
 - [2. Deploying the signature server](#2-deploying-the-signature-server)
