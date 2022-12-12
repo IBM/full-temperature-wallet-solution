@@ -10,14 +10,14 @@ import (
 
 // Config struct
 type Config struct {
-	Postgress struct {
+	DB struct {
 		Address     string `yaml:"address"`
 		Port        string `yaml:"port"`
 		Username    string `yaml:"username"`
 		Password    string `yaml:"password"`
 		Dbname      string `yaml:"dbname"`
 		SSLRootCert string `yaml:"sslrootcert"`
-	} `yaml:"postgress"`
+	} `yaml:"db"`
 	Hpcs struct {
 		Address     string `yaml:"host"`
 		Port        string `yaml:"port"`
@@ -25,7 +25,9 @@ type Config struct {
 		IAMKey      string `yaml:"iam_key"`
 		IAMEndpoint string `yaml:"iam_endpoint"`
 	}
-	SecureEnclavePath string `yaml:"secure_enclave_path"` 
+	// mysql or pg
+	DbType            string `yaml:"db_type"`
+	SecureEnclavePath string `yaml:"secure_enclave_path"`
 }
 
 // NewConfig returns a new decoded Config struct
