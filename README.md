@@ -2,26 +2,27 @@
 
 The signature server shows a scenario of using [Hyper Protect Service](https://developer.ibm.com/components/hyper-protect/), including IBM Cloud Hyper Protect Virtual Server for VPC (HPVS) and IBM Cloud Hyper Protect Crypto Services (HPCS).
 
-- [1. Signature server overview](#1-signature-server)
-  - [1.1. Environment introduction](#11-environment-introduction)
-  - [1.2. Client communication endpoints](#12-client-communication-endpoints)
-  - [1.3. GREP11 API usage example](#13-grep11-api-usage-example)
-  - [1.4. Importing the key](#14-import-key-process)
-    - [1.4.1. Frequently asked questions](#141-frequently-asked-questions)
-- [2. Deploying the signature server](#2-deploying-the-signature-server)
-  - [2.1. Introduction to HPVS](#21-introduction-to-hpvs)
-    - [2.1.1. Key features of HPVS](#211-key-features-of-hpvs)
-  - [2.2. Main step description and role separation design](#22-main-steps-description-and-role-separation-design)
-  - [2.3. Role definition](#23-role-definition)
-  - [2.4. Prerequisites](#24-prerequisites)
-  - [2.5. Building the image](#25-building-the-image)
-  - [2.6. Signing the image](#26-signing-the-image)
-  - [2.7. Build the workload template](#27-building-the-workload-template)
-  - [2.8. Build an environment template](#28-build-an-enviroment-template)
-  - [2.9. Deploying applications](#29-deploying-applications)
-  - [2.10. Deploying an application with a plaintext template](#210-deploying-an-application-with-a-plaintext-template)
-- [3. Signing the transaction with HPCS and broadcasting the transaction on the test chain](#3-signing-the-transaction-with-hpcs-and-broadcasting-the-transaction-on-the-test-chain)
-- [4. Reference documentation](#4-reference-documentation)
+- [Signing transactions with the signature server](#signing-transactions-with-the-signature-server)
+  - [1. Signature server overview](#1-signature-server-overview)
+    - [1.1. Environment introduction](#11-environment-introduction)
+    - [1.2. Client communication endpoints](#12-client-communication-endpoints)
+    - [1.3. GREP11 API usage example](#13-grep11-api-usage-example)
+    - [1.4. Importing the key](#14-importing-the-key)
+      - [1.4.1. Frequently asked questions](#141-frequently-asked-questions)
+  - [2. Deploying the signature server](#2-deploying-the-signature-server)
+    - [2.1. Introduction to HPVS](#21-introduction-to-hpvs)
+      - [2.1.1. Key features of HPVS](#211-key-features-of-hpvs)
+    - [2.2. Main steps description and role separation design](#22-main-steps-description-and-role-separation-design)
+    - [2.3. Role definition](#23-role-definition)
+    - [2.4. Prerequisites](#24-prerequisites)
+    - [2.5. Building the image](#25-building-the-image)
+    - [2.6. Signing the image](#26-signing-the-image)
+    - [2.7. Building the workload template](#27-building-the-workload-template)
+    - [2.8. Build an enviroment template](#28-build-an-enviroment-template)
+    - [2.9. Deploying applications](#29-deploying-applications)
+    - [2.10. Deploying an application with a plaintext template](#210-deploying-an-application-with-a-plaintext-template)
+  - [3. Signing the transaction with HPCS and broadcasting the transaction on the test chain](#3-signing-the-transaction-with-hpcs-and-broadcasting-the-transaction-on-the-test-chain)
+  - [4. Reference documentation](#4-reference-documentation)
 
 
 ## 1. Signature server overview
@@ -37,7 +38,7 @@ The signature server environment contains the following components and fuctions:
 - The client communicates with the signature server through RestAPI. Note that for a production environment, TLS certificate verification is also required.
 - Because the signature server is deployed in HPVS in the form of a black box, the log information is sent to logDNA through the intranet to collect and visualize the logs.
 - The signing server communicates with HPCS through the GREP11 API. Note that for a production environment, MTLS mutual certificate verification is also required.
-- Encrypted key is persisted in to DB for MySQL.
+- Encrypted key is persisted in to DB.
 - IAM authenticates access and control permissions.
 - The VPC's security group and Network ACL control intranet communication on the network.
 - All communications are within the intranet.
@@ -76,7 +77,7 @@ curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/sign/${KEY_UUID}  -s -
 # Verify signature with public key
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/verify/${KEY_UUID}  -s -X POST -d '{"data":"the text need to encrypted to verify kay.","signature":"Tw/Dk0NUNbklut31DQctitAFeFwkCtdRP7hAcMU84dYRkdXFlCB9mEFzaGpZ+dK/786k7iVQ8a8WRCNF0U7r/Q"}' |jq
 
-# Wrap the imported AES with the master key and persist it to DB for MySQL
+# Wrap the imported AES with the master key and persist it to DB
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/aes/import -X POST -s -d '{"key_content":"E5E9FA1BA31ECD1AE84F75CAAA474F3A"}' |jq
 
 # Use the encrypted data that is imported into AESkey to compare the results of plaintext AES encrypted data. If they are the same, it proves that the imported key is correct and wrapped by the master key.
@@ -91,7 +92,7 @@ openssl ecparam -genkey -name secp256k1 -noout -out secp256k1-key-pair.pem -para
 # Extract the public key
 openssl ec -in secp256k1-key-pair.pem -pubout > secp256k1-key-pub.pem
 
-# Upload the private kay and persist it in to DB for MySQL
+# Upload the private kay and persist it in to DB
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/import_ec -X POST -s  -F "file=@./secp256k1-key-pair.pem" | jq
 
 # Sign EC
@@ -130,7 +131,7 @@ Figure 3 shows the sequence of importing private key.
 The general process is:
 1. The imported key needs to be encrypted before being imported, and then decrypted inside the HSM. 
 2. Inside the HSM, the master key wraps the decrypted plaintext private key, and HPCS returns the wrapped private key to the signature server. 
-3. The second-encrypted private key is persisted in DB for MySQL.
+3. The second-encrypted private key is persisted in DB.
 
 The client request corresponding to the above steps is
   ```sh
@@ -316,10 +317,10 @@ Role 1 is responsible to build the workload template.
         publicKey: LS0tLS1CRUdJTiBDRVJ....
   env:
     # Configure some non-sensitive env variables, which should match information in the compose template
-    POSTGRESS_ADDRESS: "dbaas905.hyperp-dbaas.cloud.ibm.com"
-    POSTGRESS_PORT: "30025"
-    POSTGRESS_USERNAME: "admin"
-    POSTGRESS_DBNAME: "admin"
+    DB_ADDRESS: "dbaas905.hyperp-dbaas.cloud.ibm.com"
+    DB_PORT: "30025"
+    DB_USERNAME: "admin"
+    DB_DBNAME: "admin"
     HPCS_ADDRESS: ep11.us-east.hs-crypto.cloud.ibm.com
     HPCS_PORT: "13412"
     HPCS_INSTANCE_ID: "4ad01aec-dc81-4158....."
@@ -391,10 +392,10 @@ Role 2 is responsible to build the environment template.
       seed: thisisatest
   env:
     # Set some sensitive environment information
-    POSTGRESS_PASSWORD: xxxxx
+    DB_PASSWORD: xxxxx
     # Base64 encoding information of the PG certificate
     # echo ./cert.pem | base64 -w0
-    POSTGRESS_SSLROOTCERT: "LS0tLS1CRUdJTiBDRVJUSU....."
+    DB_SSLROOTCERT: "LS0tLS1CRUdJTiBDRVJUSU....."
     HPCS_IAM_KEY: "xxxx...."
   ```    
 
@@ -464,10 +465,10 @@ workload: |
         notary: "https://notary.au.icr.io"
         publicKey: LS0tLS1CRUdJTiBDRVJUSUZ.....
   env:
-    POSTGRESS_ADDRESS: dbaas905.hyperp-dbaas.c....
-    POSTGRESS_PORT: "30025"
-    POSTGRESS_USERNAME: "admin"
-    POSTGRESS_DBNAME: "admin"
+    DB_ADDRESS: dbaas905.hyperp-dbaas.c....
+    DB_PORT: "30025"
+    DB_USERNAME: "admin"
+    DB_DBNAME: "admin"
     HPCS_ADDRESS: ep11.us-east.hs-crypto.cloud.ibm.com
     HPCS_PORT: "13412"
     HPCS_INSTANCE_ID: ad01aec-dc81.....
@@ -489,8 +490,8 @@ env: |
     volume1:
       seed: thisisatest
   env:
-    POSTGRESS_PASSWORD: "......"
-    POSTGRESS_SSLROOTCERT: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0t....."
+    DB_PASSWORD: "......"
+    DB_SSLROOTCERT: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0t....."
     HPCS_IAM_KEY: "3lHSZqcuCh4b_....
 ```
 
