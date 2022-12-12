@@ -1,6 +1,6 @@
 # Signing transactions with the signature server
 
-The signature server shows a scenario of using [Hyper Protect Service](https://developer.ibm.com/components/hyper-protect/), including IBM Cloud Hyper Protect Virtual Server for VPC (HPVS), IBM Cloud Hyper Protect Crypto Services (HPCS), and IBM Cloud Hyper Protect DB as a Service (HPDBaaS). 
+The signature server shows a scenario of using [Hyper Protect Service](https://developer.ibm.com/components/hyper-protect/), including IBM Cloud Hyper Protect Virtual Server for VPC (HPVS) and IBM Cloud Hyper Protect Crypto Services (HPCS).
 
 - [1. Signature server overview](#1-signature-server)
   - [1.1. Environment introduction](#11-environment-introduction)
@@ -16,8 +16,8 @@ The signature server shows a scenario of using [Hyper Protect Service](https://d
   - [2.4. Prerequisites](#24-prerequisites)
   - [2.5. Building the image](#25-building-the-image)
   - [2.6. Signing the image](#26-signing-the-image)
-  - [2.7. Build the WORKLOAD template](#27-building-the-workload-template)
-  - [2.8. Build an ENV template](#28-build-an-enviroment-template)
+  - [2.7. Build the workload template](#27-building-the-workload-template)
+  - [2.8. Build an environment template](#28-build-an-enviroment-template)
   - [2.9. Deploying applications](#29-deploying-applications)
   - [2.10. Deploying an application with a plaintext template](#210-deploying-an-application-with-a-plaintext-template)
 - [3. Signing the transaction with HPCS and broadcasting the transaction on the test chain](#3-signing-the-transaction-with-hpcs-and-broadcasting-the-transaction-on-the-test-chain)
@@ -37,7 +37,7 @@ The signature server environment contains the following components and fuctions:
 - The client communicates with the signature server through RestAPI. Note that for a production environment, TLS certificate verification is also required.
 - Because the signature server is deployed in HPVS in the form of a black box, the log information is sent to logDNA through the intranet to collect and visualize the logs.
 - The signing server communicates with HPCS through the GREP11 API. Note that for a production environment, MTLS mutual certificate verification is also required.
-- Encrypted key is persisted in to HPDBaaS.
+- Encrypted key is persisted in to DB for MySQL.
 - IAM authenticates access and control permissions.
 - The VPC's security group and Network ACL control intranet communication on the network.
 - All communications are within the intranet.
@@ -76,7 +76,7 @@ curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/sign/${KEY_UUID}  -s -
 # Verify signature with public key
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/secp256k1/verify/${KEY_UUID}  -s -X POST -d '{"data":"the text need to encrypted to verify kay.","signature":"Tw/Dk0NUNbklut31DQctitAFeFwkCtdRP7hAcMU84dYRkdXFlCB9mEFzaGpZ+dK/786k7iVQ8a8WRCNF0U7r/Q"}' |jq
 
-# Wrap the imported AES with the master key and persist it to HPDBaaS
+# Wrap the imported AES with the master key and persist it to DB for MySQL
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/aes/import -X POST -s -d '{"key_content":"E5E9FA1BA31ECD1AE84F75CAAA474F3A"}' |jq
 
 # Use the encrypted data that is imported into AESkey to compare the results of plaintext AES encrypted data. If they are the same, it proves that the imported key is correct and wrapped by the master key.
@@ -91,7 +91,7 @@ openssl ecparam -genkey -name secp256k1 -noout -out secp256k1-key-pair.pem -para
 # Extract the public key
 openssl ec -in secp256k1-key-pair.pem -pubout > secp256k1-key-pub.pem
 
-# Upload the private kay and persist it in to HPDBaaS
+# Upload the private kay and persist it in to DB for MySQL
 curl ${SIGN_HOST}:${SIGNING_PORT}/v1/grep11/key/import_ec -X POST -s  -F "file=@./secp256k1-key-pair.pem" | jq
 
 # Sign EC
@@ -130,7 +130,7 @@ Figure 3 shows the sequence of importing private key.
 The general process is:
 1. The imported key needs to be encrypted before being imported, and then decrypted inside the HSM. 
 2. Inside the HSM, the master key wraps the decrypted plaintext private key, and HPCS returns the wrapped private key to the signature server. 
-3. The second-encrypted private key is persisted in HPDBaaS.
+3. The second-encrypted private key is persisted in DB for MySQL.
 
 The client request corresponding to the above steps is
   ```sh
@@ -180,7 +180,7 @@ Main steps explanation:
 
 **Notes:**
 - Only the operator needs to access the production environment, but the authority of the operator is the lowest. If the deployment template is encrypted, the operator cannot obtain any information. 
-- The workload template contains some deployment image information and some non-sensitive variables. The environment template usually contains  some information about environment variables.
+- The workload template contains some deployment image information and some non-sensitive variables. The environment template usually contains some information about environment variables.
 
 ### 2.3. Role definition
 
