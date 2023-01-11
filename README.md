@@ -210,7 +210,7 @@ The step of building and uploading the image to the IBM container registry is us
  
 1. Clone the repository.
   ```sh
-  git clone https://github.com/threen134/signing_server.git
+  git clone https://github.com/IBM/full-temperature-wallet-solution.git
   ```
 
 2. Build an image.
@@ -394,7 +394,7 @@ Role 2 is responsible to build the environment template.
     # Set some sensitive environment information
     DB_PASSWORD: xxxxx
     # Base64 encoding information of the PG certificate
-    # echo ./cert.pem | base64 -w0
+    # cat ./cert.pem | base64 -w0
     DB_SSLROOTCERT: "LS0tLS1CRUdJTiBDRVJUSU....."
     HPCS_IAM_KEY: "xxxx...."
   ```    
