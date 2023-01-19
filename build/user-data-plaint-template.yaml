@@ -27,6 +27,7 @@ env: |
     volume1:
       seed: thisisatest
   env:
+    DB_TYPE: "mysql"
     DB_ADDRESS: "dbaas905....
     DB_PORT: "30025"
     DB_USERNAME: "admin"
