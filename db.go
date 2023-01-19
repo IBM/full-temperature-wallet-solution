@@ -96,9 +96,9 @@ func getDB(config *Config) *gorm.DB {
 
 	var db *gorm.DB
 	var err error
-	if  config.DbType == "mysql" {
+	if config.DbType == "mysql" {
 		db, err = gorm.Open(gmsql.Open(dsn), &gorm.Config{})
-	} else{
+	} else {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	}
 
