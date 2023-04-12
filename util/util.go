@@ -19,6 +19,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math/big"
@@ -31,6 +32,7 @@ import (
 	"github.com/IBM-Cloud/hpcs-grep11-go/ep11"
 	pb "github.com/IBM-Cloud/hpcs-grep11-go/grpc"
 	"github.com/golang/protobuf/proto"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc/status"
 )
 
@@ -352,6 +354,7 @@ func (cr *IAMPerRPCCredentials) getToken(ctx context.Context) (err error) {
 
 	req, err = http.NewRequest("POST", cr.Endpoint+"/identity/token", bytes.NewBuffer(requestBody))
 	if err != nil {
+		log.WithError(err).Error("fail to build request")
 		return err
 	}
 
@@ -359,14 +362,23 @@ func (cr *IAMPerRPCCredentials) getToken(ctx context.Context) (err error) {
 	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
+		log.WithError(err).Error("call iam error")
 		return err
 	}
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		log.WithError(err).Error("iam read body error")
 		return fmt.Errorf("failed to read response body: %s", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.WithField("http_status_code", resp.StatusCode).Error("expect 200 status code")
+		err := errors.New("fail to get IAM access token")
+		log.WithField("response_body", string(respBody)).Error(err.Error())
+		return err
+	}
 
 	iamToken := struct {
 		AccessToken string `json:"access_token"`

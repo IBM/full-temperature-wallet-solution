@@ -25,7 +25,7 @@ import (
 
 	"github.com/IBM-Cloud/hpcs-grep11-go/ep11"
 	pb "github.com/IBM-Cloud/hpcs-grep11-go/grpc"
-	"github.com/IBM-Cloud/hpcs-grep11-go/util"
+	"github.com/IBM/full-temperature-wallet-solution/util"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"

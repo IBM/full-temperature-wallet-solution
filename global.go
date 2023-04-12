@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/IBM-Cloud/hpcs-grep11-go/util"
+	"github.com/IBM/full-temperature-wallet-solution/util"
+
 	log "github.com/sirupsen/logrus"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
